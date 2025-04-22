@@ -1,0 +1,26 @@
+RewriteEngine On
+
+# Definir la ruta base si la aplicación está en un subdirectorio
+# RewriteBase /militantes-sistema/
+
+# Si el archivo o directorio solicitado no existe, redirigir a index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Proteger archivos sensibles
+<FilesMatch "^(database\.php|app\.php)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Limitar tamaño de subida
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+
+# Seguridad adicional
+<IfModule mod_headers.c>
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>
