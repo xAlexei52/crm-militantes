@@ -89,10 +89,9 @@ class RegistroController {
             redirect('register');
         }
         
-        // Preparar datos del formulario
+        // Procesar imagen del INE si existe
         $imagen_ine = '';
         
-        // Procesar imagen del INE si existe
         if (isset($_FILES['imagen_ine']) && $_FILES['imagen_ine']['error'] == 0) {
             $uploadDir = UPLOAD_DIR . 'ine/';
             
@@ -109,24 +108,60 @@ class RegistroController {
             if (move_uploaded_file($_FILES['imagen_ine']['tmp_name'], $uploadFile)) {
                 $imagen_ine = 'ine/' . $filename;
             }
+        } else if (isset($_POST['imagen_ine_path']) && !empty($_POST['imagen_ine_path'])) {
+            // Si no se subió una nueva imagen pero tenemos una ruta de imagen del procesamiento OCR
+            $imagen_ine = $_POST['imagen_ine_path'];
         }
         
-        // Crear militante en la base de datos
+        // Calcular edad basado en fecha de nacimiento
+        $edad = null;
+        if (!empty($_POST['fecha_nacimiento'])) {
+            $fechaNac = new DateTime($_POST['fecha_nacimiento']);
+            $hoy = new DateTime();
+            $edad = $hoy->diff($fechaNac)->y;
+        }
+        
+        // Preparar datos del formulario con todos los campos posibles
         $militanteData = [
+            // Información personal
             'nombre' => $_POST['nombre'],
             'apellido_paterno' => $_POST['apellido_paterno'],
             'apellido_materno' => $_POST['apellido_materno'] ?? '',
             'fecha_nacimiento' => $_POST['fecha_nacimiento'],
             'genero' => $_POST['genero'],
+            'edad' => $edad,
+            'lugar_nacimiento' => $_POST['lugar_nacimiento'] ?? '',
+            
+            // Identificación
             'clave_elector' => $_POST['clave_elector'],
             'curp' => $_POST['curp'] ?? '',
+            'folio_nacional' => $_POST['folio_nacional'] ?? '',
+            'fecha_inscripcion_padron' => $_POST['fecha_inscripcion_padron'] ?? '',
+            
+            // Domicilio
             'domicilio' => $_POST['domicilio'] ?? '',
+            'calle' => $_POST['calle'] ?? '',
+            'numero_exterior' => $_POST['numero_exterior'] ?? '',
+            'numero_interior' => $_POST['numero_interior'] ?? '',
+            'colonia' => $_POST['colonia'] ?? '',
+            'codigo_postal' => $_POST['codigo_postal'] ?? '',
             'estado' => $_POST['estado'],
             'municipio' => $_POST['municipio'],
             'seccion' => $_POST['seccion'] ?? '',
+            
+            // Contacto
             'telefono' => $_POST['telefono'],
             'email' => $_POST['email'] ?? '',
-            'imagen_ine' => $imagen_ine
+            
+            // Información socioeconómica (si existe en el formulario)
+            'salario_mensual' => isset($_POST['salario_mensual']) ? $_POST['salario_mensual'] : null,
+            'medio_transporte' => isset($_POST['medio_transporte']) ? $_POST['medio_transporte'] : null,
+            'nivel_estudios' => isset($_POST['nivel_estudios']) ? $_POST['nivel_estudios'] : null,
+            
+            // Imagen y metadatos
+            'imagen_ine' => $imagen_ine,
+            'registrado_por' => isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null,
+            'status' => 'activo'
         ];
         
         $id = $this->militanteModel->create($militanteData);
@@ -135,6 +170,11 @@ class RegistroController {
             // Limpiar datos del INE de la sesión
             if (isset($_SESSION['datos_ine'])) {
                 unset($_SESSION['datos_ine']);
+            }
+            
+            // Registrar la actividad en el log si existe la función
+            if (function_exists('logActivity')) {
+                logActivity('registro', 'Nuevo militante registrado', 'militante', $id);
             }
             
             setFlashMessage('success', '¡Registro exitoso! Gracias por afiliarte.');
@@ -168,10 +208,24 @@ class RegistroController {
             // Guardar datos en sesión para pre-llenar el formulario
             $_SESSION['datos_ine'] = $datos;
             
+            // Guardar la imagen temporalmente para usarla en el registro
+            $uploadDir = UPLOAD_DIR . 'ine/';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            
+            $filename = uniqid() . '_temp_' . basename($_FILES['ine_image']['name']);
+            $uploadFile = $uploadDir . $filename;
+            
+            if (move_uploaded_file($_FILES['ine_image']['tmp_name'], $uploadFile)) {
+                $datos['imagen_path'] = 'ine/' . $filename;
+            }
+            
             // Devolver datos extraídos
             echo json_encode([
                 'success' => true,
-                'datos' => $datos
+                'datos' => $datos,
+                'image_path' => $datos['imagen_path'] ?? null
             ]);
         } catch (Exception $e) {
             http_response_code(500);

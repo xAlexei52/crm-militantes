@@ -407,9 +407,63 @@
                                     placeholder="ejemplo@correo.com"
                                 >
                             </div>
+
+                            <!-- Salario mensual -->
+                            <div>
+                                <label for="salario_mensual" class="block text-sm font-medium text-gray-700 mb-1">Salario Mensual</label>
+                                <input 
+                                    type="text" 
+                                    id="salario_mensual" 
+                                    name="salario_mensual" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    placeholder="Salario mensual"
+                                >
+                            </div>
+
+                            <!-- Medio transporte -->
+                            <div>
+                                <label for="medio_transporte" class="block text-sm font-medium text-gray-700 mb-1">Género *</label>
+                                <select 
+                                    id="medio_transporte" 
+                                    name="medio_transporte" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" 
+                                >
+                                    <option value="" disabled selected>Selecciona un medio de transporte</option>
+                                    <option value="auto_propio">Auto propio</option>
+                                    <option value="transporte_publico">Transporte público</option>
+                                    <option value="bicicleta">Bicicleta</option>
+                                    <option value="moto">Motocicleta</option>
+                                    <option value="a_pie">A pie</option>
+                                    <option value="uber_didi">Uber / Didi / Taxi</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+
+                            <!-- nivel de estudios -->
+                            <div>
+                                <label for="nivel_estudios" class="block text-sm font-medium text-gray-700 mb-1">Nivel de estudios *</label>
+                                <select 
+                                    id="nivel_estudios" 
+                                    name="nivel_estudios" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                >
+                                    <option value="" disabled selected>Selecciona tu nivel de estudios</option>
+                                    <option value="sin_estudios">Sin estudios</option>
+                                    <option value="primaria_incompleta">Primaria incompleta</option>
+                                    <option value="primaria_completa">Primaria completa</option>
+                                    <option value="secundaria_incompleta">Secundaria incompleta</option>
+                                    <option value="secundaria_completa">Secundaria completa</option>
+                                    <option value="preparatoria_incompleta">Preparatoria / Bachillerato incompleto</option>
+                                    <option value="preparatoria_completa">Preparatoria / Bachillerato completo</option>
+                                    <option value="tecnico">Técnico o carrera técnica</option>
+                                    <option value="universidad_incompleta">Universidad incompleta</option>
+                                    <option value="universidad_completa">Universidad completa</option>
+                                    <option value="posgrado">Posgrado (Maestría, Doctorado, etc.)</option>
+                                </select>
+                            </div>
                             
                             <!-- Cargar imagen del INE -->
-                            <div class="col-span-2">
+                            <!-- <div class="col-span-2">
                                 <label for="imagen_ine" class="block text-sm font-medium text-gray-700 mb-1">Subir imagen de tu credencial de elector (opcional)</label>
                                 <input 
                                     type="file" 
@@ -419,7 +473,7 @@
                                     accept="image/*"
                                 >
                                 <p class="mt-1 text-xs text-gray-500">Formatos aceptados: JPG, PNG (Max. 5MB)</p>
-                            </div>
+                            </div> -->
                             
                             <!-- Términos y condiciones -->
                             <div class="col-span-2 mt-4">

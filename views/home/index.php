@@ -34,10 +34,6 @@
                             <i class="fas fa-sign-in-alt mr-1"></i> Iniciar Sesión
                         </a>
                     <?php endif; ?>
-                    <div class="text-xs text-gray-400">
-                        BASE URL: <?= APP_URL ?><br>
-                        Login URL: <?= APP_URL ?>/login
-                    </div>
                 </div>
             </div>
         </div>

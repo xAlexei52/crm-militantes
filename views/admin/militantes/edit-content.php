@@ -368,40 +368,43 @@
                     
                     <!-- Medio de Transporte -->
                     <div>
-                        <label for="medio_transporte" class="block text-sm font-medium text-gray-700 mb-1">Medio de Transporte</label>
+                        <label for="medio_transporte" class="block text-sm font-medium text-gray-700 mb-1">Género *</label>
                         <select 
                             id="medio_transporte" 
                             name="medio_transporte" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" 
                         >
-                            <option value="" <?= empty($militante['medio_transporte']) ? 'selected' : '' ?>>Sin especificar</option>
-                            <option value="Automóvil propio" <?= isset($militante['medio_transporte']) && $militante['medio_transporte'] == 'Automóvil propio' ? 'selected' : '' ?>>Automóvil propio</option>
-                            <option value="Transporte público" <?= isset($militante['medio_transporte']) && $militante['medio_transporte'] == 'Transporte público' ? 'selected' : '' ?>>Transporte público</option>
-                            <option value="Motocicleta" <?= isset($militante['medio_transporte']) && $militante['medio_transporte'] == 'Motocicleta' ? 'selected' : '' ?>>Motocicleta</option>
-                            <option value="Bicicleta" <?= isset($militante['medio_transporte']) && $militante['medio_transporte'] == 'Bicicleta' ? 'selected' : '' ?>>Bicicleta</option>
-                            <option value="A pie" <?= isset($militante['medio_transporte']) && $militante['medio_transporte'] == 'A pie' ? 'selected' : '' ?>>A pie</option>
-                            <option value="App de transporte" <?= isset($militante['medio_transporte']) && $militante['medio_transporte'] == 'App de transporte' ? 'selected' : '' ?>>App de transporte</option>
-                            <option value="Otro" <?= isset($militante['medio_transporte']) && $militante['medio_transporte'] == 'Otro' ? 'selected' : '' ?>>Otro</option>
+                            <option value="" disabled selected>Selecciona un medio de transporte</option>
+                            <option value="auto_propio">Auto propio</option>
+                            <option value="transporte_publico">Transporte público</option>
+                            <option value="bicicleta">Bicicleta</option>
+                            <option value="moto">Motocicleta</option>
+                            <option value="a_pie">A pie</option>
+                            <option value="uber_didi">Uber / Didi / Taxi</option>
+                            <option value="otro">Otro</option>
                         </select>
                     </div>
                     
-                    <!-- Nivel de Estudios -->
+                    <!-- nivel de estudios -->
                     <div>
-                        <label for="nivel_estudios" class="block text-sm font-medium text-gray-700 mb-1">Nivel de Estudios</label>
+                        <label for="nivel_estudios" class="block text-sm font-medium text-gray-700 mb-1">Nivel de estudios *</label>
                         <select 
                             id="nivel_estudios" 
                             name="nivel_estudios" 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                         >
-                            <option value="" <?= empty($militante['nivel_estudios']) ? 'selected' : '' ?>>Sin especificar</option>
-                            <option value="Primaria" <?= isset($militante['nivel_estudios']) && $militante['nivel_estudios'] == 'Primaria' ? 'selected' : '' ?>>Primaria</option>
-                            <option value="Secundaria" <?= isset($militante['nivel_estudios']) && $militante['nivel_estudios'] == 'Secundaria' ? 'selected' : '' ?>>Secundaria</option>
-                            <option value="Preparatoria/Bachillerato" <?= isset($militante['nivel_estudios']) && $militante['nivel_estudios'] == 'Preparatoria/Bachillerato' ? 'selected' : '' ?>>Preparatoria/Bachillerato</option>
-                            <option value="Carrera técnica" <?= isset($militante['nivel_estudios']) && $militante['nivel_estudios'] == 'Carrera técnica' ? 'selected' : '' ?>>Carrera técnica</option>
-                            <option value="Licenciatura" <?= isset($militante['nivel_estudios']) && $militante['nivel_estudios'] == 'Licenciatura' ? 'selected' : '' ?>>Licenciatura</option>
-                            <option value="Maestría" <?= isset($militante['nivel_estudios']) && $militante['nivel_estudios'] == 'Maestría' ? 'selected' : '' ?>>Maestría</option>
-                            <option value="Doctorado" <?= isset($militante['nivel_estudios']) && $militante['nivel_estudios'] == 'Doctorado' ? 'selected' : '' ?>>Doctorado</option>
-                            <option value="Sin estudios formales" <?= isset($militante['nivel_estudios']) && $militante['nivel_estudios'] == 'Sin estudios formales' ? 'selected' : '' ?>>Sin estudios formales</option>
+                            <option value="" disabled selected>Selecciona tu nivel de estudios</option>
+                            <option value="sin_estudios">Sin estudios</option>
+                            <option value="primaria_incompleta">Primaria incompleta</option>
+                            <option value="primaria_completa">Primaria completa</option>
+                            <option value="secundaria_incompleta">Secundaria incompleta</option>
+                            <option value="secundaria_completa">Secundaria completa</option>
+                            <option value="preparatoria_incompleta">Preparatoria / Bachillerato incompleto</option>
+                            <option value="preparatoria_completa">Preparatoria / Bachillerato completo</option>
+                            <option value="tecnico">Técnico o carrera técnica</option>
+                            <option value="universidad_incompleta">Universidad incompleta</option>
+                            <option value="universidad_completa">Universidad completa</option>
+                            <option value="posgrado">Posgrado (Maestría, Doctorado, etc.)</option>
                         </select>
                     </div>
                     
