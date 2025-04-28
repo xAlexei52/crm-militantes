@@ -98,10 +98,9 @@ class RegistroController {
             redirect('register');
         }
         
-        // Preparar datos del formulario
+        // Procesar imagen del INE si existe
         $imagen_ine = '';
         
-        // Procesar imagen del INE si existe
         if (isset($_FILES['imagen_ine']) && $_FILES['imagen_ine']['error'] == 0) {
             $uploadDir = UPLOAD_DIR . 'ine/';
             
@@ -138,11 +137,16 @@ class RegistroController {
         
         // Crear militante en la base de datos
         $militanteData = [
+            // Información personal
             'nombre' => $_POST['nombre'],
             'apellido_paterno' => $_POST['apellido_paterno'],
             'apellido_materno' => $_POST['apellido_materno'] ?? '',
             'fecha_nacimiento' => $fechaNacimiento,
             'genero' => $_POST['genero'],
+            'edad' => $edad,
+            'lugar_nacimiento' => $_POST['lugar_nacimiento'] ?? '',
+            
+            // Identificación
             'clave_elector' => $_POST['clave_elector'],
             'curp' => $_POST['curp'] ?? '',
             'folio_nacional' => $_POST['folio_nacional'] ?? '',
@@ -156,6 +160,8 @@ class RegistroController {
             'estado' => $_POST['estado'],
             'municipio' => $_POST['municipio'],
             'seccion' => $_POST['seccion'] ?? '',
+            
+            // Contacto
             'telefono' => $_POST['telefono'],
             'email' => $_POST['email'] ?? '',
             'lugar_nacimiento' => $_POST['lugar_nacimiento'] ?? '',

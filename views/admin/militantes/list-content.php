@@ -127,7 +127,11 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-500"><?= date('d/m/Y', strtotime($militante['created_at'])) ?></div>
                                 </td>
+                                <!-- Modificar la columna de acciones en list-content.php -->
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a href="<?= APP_URL ?>/admin/militantes/view?id=<?= $militante['id'] ?>" class="text-sky-600 hover:text-sky-900 mr-3">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </a>
                                     <a href="<?= APP_URL ?>/admin/militantes/edit?id=<?= $militante['id'] ?>" class="text-sky-600 hover:text-sky-900 mr-3">
                                         <i class="fas fa-edit"></i> Editar
                                     </a>

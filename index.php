@@ -128,6 +128,15 @@ switch ($request_path) {
         $controller = new AdminController();
         $controller->deleteMilitante();
         break;
+
+    case '/admin/militantes/view':
+        if (!isAdmin()) {
+            redirect('login');
+        }
+        require 'controllers/AdminController.php';
+        $controller = new AdminController();
+        $controller->viewMilitante();
+        break;
         
     case '/admin/mensajes':
         if (!isAdmin()) {
