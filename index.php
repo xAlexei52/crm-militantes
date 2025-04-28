@@ -174,7 +174,89 @@ switch ($request_path) {
         $controller = new HomeController();
         $controller->processContact();
         break;
-        
+    // Gestión de usuarios
+    case '/admin/usuarios':
+        if (!isAdmin()) {
+            redirect('login');
+        }
+        require 'controllers/UsuariosController.php';
+        $controller = new UsuariosController();
+        $controller->index();
+        break;
+
+    case '/admin/usuarios/create':
+        if (!isAdmin()) {
+            redirect('login');
+        }
+        require 'controllers/UsuariosController.php';
+        $controller = new UsuariosController();
+        $controller->create();
+        break;
+
+    case '/admin/usuarios/store':
+        if (!isAdmin()) {
+            redirect('login');
+        }
+        require 'controllers/UsuariosController.php';
+        $controller = new UsuariosController();
+        $controller->store();
+        break;
+
+    case '/admin/usuarios/edit':
+        if (!isAdmin()) {
+            redirect('login');
+        }
+        require 'controllers/UsuariosController.php';
+        $controller = new UsuariosController();
+        $controller->edit();
+        break;
+
+    case '/admin/usuarios/update':
+        if (!isAdmin()) {
+            redirect('login');
+        }
+        require 'controllers/UsuariosController.php';
+        $controller = new UsuariosController();
+        $controller->update();
+        break;
+
+    case '/admin/usuarios/delete':
+        if (!isAdmin()) {
+            redirect('login');
+        }
+        require 'controllers/UsuariosController.php';
+        $controller = new UsuariosController();
+        $controller->delete();
+        break;
+
+        case '/password/reset':
+            require 'controllers/PasswordResetController.php';
+            $controller = new PasswordResetController();
+            $controller->showRequestForm();
+            break;
+            
+        case '/password/reset/process':
+            require 'controllers/PasswordResetController.php';
+            $controller = new PasswordResetController();
+            $controller->processRequest();
+            break;
+            
+        // Busca el código que maneja el $request_path y agrega esto:
+        if (preg_match('|^/password/reset/([a-zA-Z0-9]+)$|', $request_path, $matches)) {
+            require 'controllers/PasswordResetController.php';
+            $controller = new PasswordResetController();
+            $controller->showResetForm($matches[1]);
+            break;
+        }
+
+        // Ruta para procesar la nueva contraseña
+        if (preg_match('|^/password/reset/([a-zA-Z0-9]+)/process$|', $request_path, $matches)) {
+            require 'controllers/PasswordResetController.php';
+            $controller = new PasswordResetController();
+            $controller->processReset($matches[1]);
+            break;
+        }
+            
     // Ruta por defecto - 404
     default:
         http_response_code(404);

@@ -24,20 +24,23 @@
                 </div>
                 <div>
                     <p class="text-sm text-gray-500 uppercase">Estados Representados</p>
-                    <p class="text-2xl font-bold text-gray-700"><?= count($estadoPorEstado ?? []) ?></p>
+                    <p class="text-2xl font-bold text-gray-700"><?= is_array($estadoPorEstado) ? count($estadoPorEstado) : 0 ?></p>
                 </div>
             </div>
         </div>
         
-        <!-- Registros recientes -->
-        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+        <!-- Tendencia de crecimiento -->
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 <?= $crecimientoMensual['tendencia'] === 'positiva' ? 'border-green-500' : 'border-yellow-500' ?>">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-green-100 text-green-500 mr-4">
-                    <i class="fas fa-chart-line text-xl"></i>
+                <div class="p-3 rounded-full <?= $crecimientoMensual['tendencia'] === 'positiva' ? 'bg-green-100 text-green-500' : 'bg-yellow-100 text-yellow-500' ?> mr-4">
+                    <i class="fas <?= $crecimientoMensual['tendencia'] === 'positiva' ? 'fa-chart-line' : 'fa-chart-line' ?> text-xl"></i>
                 </div>
                 <div>
                     <p class="text-sm text-gray-500 uppercase">Tendencia</p>
-                    <p class="text-2xl font-bold text-gray-700">↑ 12%</p>
+                    <p class="text-2xl font-bold text-gray-700">
+                        <?= $crecimientoMensual['tendencia'] === 'positiva' ? '↑' : '↓' ?> 
+                        <?= abs($crecimientoMensual['crecimiento_porcentaje']) ?>%
+                    </p>
                     <p class="text-xs text-gray-500">vs. mes anterior</p>
                 </div>
             </div>
@@ -66,9 +69,9 @@
                                     <td class="px-6 py-2 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($estado['estado']) ?></td>
                                     <td class="px-6 py-2 whitespace-nowrap text-sm text-gray-500"><?= $estado['total'] ?></td>
                                     <td class="px-6 py-2 whitespace-nowrap text-sm text-gray-500">
-                                        <?= round(($estado['total'] / $totalMilitantes) * 100, 1) ?>%
+                                        <?= $totalMilitantes > 0 ? round(($estado['total'] / $totalMilitantes) * 100, 1) : 0 ?>%
                                         <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                                            <div class="bg-red-600 h-2 rounded-full" style="width: <?= ($estado['total'] / $totalMilitantes) * 100 ?>%"></div>
+                                            <div class="bg-red-600 h-2 rounded-full" style="width: <?= $totalMilitantes > 0 ? ($estado['total'] / $totalMilitantes) * 100 : 0 ?>%"></div>
                                         </div>
                                     </td>
                                 </tr>
@@ -87,55 +90,37 @@
         <div class="bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-lg font-semibold text-gray-700 mb-4">Actividades Recientes</h2>
             
-            <ul class="space-y-4">
-                <li class="flex items-start">
-                    <div class="flex-shrink-0 bg-green-100 rounded-full p-2">
-                        <svg class="h-4 w-4 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-700">Nuevo militante registrado</p>
-                        <p class="text-xs text-gray-500">Hace 30 minutos</p>
-                    </div>
-                </li>
-                <li class="flex items-start">
-                    <div class="flex-shrink-0 bg-blue-100 rounded-full p-2">
-                        <svg class="h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-700">Actualización de datos de militante</p>
-                        <p class="text-xs text-gray-500">Hace 2 horas</p>
-                    </div>
-                </li>
-                <li class="flex items-start">
-                    <div class="flex-shrink-0 bg-purple-100 rounded-full p-2">
-                        <svg class="h-4 w-4 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-700">Campaña SMS enviada a 250 militantes</p>
-                        <p class="text-xs text-gray-500">Ayer a las 15:30</p>
-                    </div>
-                </li>
-                <li class="flex items-start">
-                    <div class="flex-shrink-0 bg-yellow-100 rounded-full p-2">
-                        <svg class="h-4 w-4 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-700">Actualización de datos en masa</p>
-                        <p class="text-xs text-gray-500">Hace 2 días</p>
-                    </div>
-                </li>
-            </ul>
+            <?php if (isset($actividadesRecientes) && is_array($actividadesRecientes) && count($actividadesRecientes) > 0): ?>
+                <ul class="space-y-4">
+                    <?php foreach ($actividadesRecientes as $actividad): ?>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 bg-green-100 rounded-full p-2">
+                                <svg class="h-4 w-4 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-700">
+                                    Nuevo militante: <?= htmlspecialchars($actividad['nombre'] . ' ' . $actividad['apellido_paterno'] . ' ' . $actividad['apellido_materno']) ?>
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    <?= timeAgo(strtotime($actividad['created_at'])) ?> 
+                                    <?php if (!empty($actividad['registrado_por'])): ?>
+                                        por <?= htmlspecialchars($actividad['registrado_por']) ?>
+                                    <?php endif; ?>
+                                </p>
+                            </div>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <div class="text-center py-4">
+                    <p class="text-gray-500">No hay actividades recientes</p>
+                </div>
+            <?php endif; ?>
             
-            <a href="#" class="block text-center text-sm font-medium text-red-600 hover:text-red-500 mt-4">
-                Ver todas las actividades
+            <a href="<?= APP_URL ?>/admin/militantes" class="block text-center text-sm font-medium text-red-600 hover:text-red-500 mt-4">
+                Ver todos los militantes
             </a>
         </div>
     </div>
@@ -155,16 +140,6 @@
                 </div>
             </a>
             
-            <a href="<?= APP_URL ?>/admin/mensajes" class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition flex items-center border border-gray-200">
-                <div class="p-3 rounded-full bg-green-100 text-green-500 mr-3">
-                    <i class="fas fa-envelope"></i>
-                </div>
-                <div>
-                    <p class="font-medium text-gray-700">Enviar Mensajes</p>
-                    <p class="text-xs text-gray-500">Comunicaciones masivas</p>
-                </div>
-            </a>
-            
             <a href="<?= APP_URL ?>/register" class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition flex items-center border border-gray-200">
                 <div class="p-3 rounded-full bg-blue-100 text-blue-500 mr-3">
                     <i class="fas fa-user-plus"></i>
@@ -174,6 +149,58 @@
                     <p class="text-xs text-gray-500">Nuevo ingreso</p>
                 </div>
             </a>
+            
+            <?php if (isAdmin()): ?>
+            <a href="<?= APP_URL ?>/admin/usuarios" class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition flex items-center border border-gray-200">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-500 mr-3">
+                    <i class="fas fa-users-cog"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-gray-700">Gestión de Usuarios</p>
+                    <p class="text-xs text-gray-500">Administra los usuarios del sistema</p>
+                </div>
+            </a>
+            <?php else: ?>
+            <a href="<?= APP_URL ?>/admin/militantes" class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition flex items-center border border-gray-200">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-500 mr-3">
+                    <i class="fas fa-file-export"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-gray-700">Exportar Datos</p>
+                    <p class="text-xs text-gray-500">Descarga informes</p>
+                </div>
+            </a>
+            <?php endif; ?>
         </div>
     </div>
 </div>
+
+<?php
+/**
+ * Función para formatear tiempo en formato "hace X tiempo"
+ * @param int $timestamp Timestamp a formatear
+ * @return string Texto formateado
+ */
+function timeAgo($timestamp) {
+    $difference = time() - $timestamp;
+    
+    if ($difference < 60) {
+        return 'hace unos segundos';
+    } elseif ($difference < 3600) {
+        $minutes = round($difference / 60);
+        return 'hace ' . $minutes . ' ' . ($minutes == 1 ? 'minuto' : 'minutos');
+    } elseif ($difference < 86400) {
+        $hours = round($difference / 3600);
+        return 'hace ' . $hours . ' ' . ($hours == 1 ? 'hora' : 'horas');
+    } elseif ($difference < 604800) {
+        $days = round($difference / 86400);
+        return 'hace ' . $days . ' ' . ($days == 1 ? 'día' : 'días');
+    } elseif ($difference < 2592000) {
+        $weeks = round($difference / 604800);
+        return 'hace ' . $weeks . ' ' . ($weeks == 1 ? 'semana' : 'semanas');
+    } else {
+        // Si es más de un mes, mostramos la fecha
+        return date('d/m/Y', $timestamp);
+    }
+}
+?>

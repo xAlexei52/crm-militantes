@@ -8,22 +8,36 @@ class AdminController {
         $this->militanteModel = new Militante();
     }
     
-    // Muestra el dashboard del administrador
+    // Reemplazar la función dashboard en el AdminController con esta versión actualizada
+
+// Muestra el dashboard del administrador
     public function dashboard() {
-        // Obtener estadísticas
-        $estadoPorEstado = $this->militanteModel->getCountByState();
-        $totalMilitantes = 0;
-        
-        // Verificar que estadoPorEstado es un array antes de usarlo
-        if (is_array($estadoPorEstado)) {
+        try {
+            // Obtener conteo de militantes por estado
+            $estadoPorEstado = $this->militanteModel->getCountByState();
+            
+            // Obtener total de militantes
             $totalMilitantes = array_reduce($estadoPorEstado, function($carry, $item) {
                 return $carry + $item['total'];
             }, 0);
+            
+            // Obtener actividades recientes (últimos 5 militantes registrados)
+            $actividadesRecientes = $this->militanteModel->getRecentActivity(5);
+            
+            // Obtener estadísticas de crecimiento
+            $crecimientoMensual = $this->militanteModel->getMonthlyGrowth();
+            
+            // Cargar vista
+            require 'views/admin/dashboard.php';
+        } catch (Exception $e) {
+            // Log del error
+            error_log("Error en dashboard: " . $e->getMessage());
+            
+            // Mostrar error genérico al usuario
+            setFlashMessage('error', 'Ocurrió un error al cargar el dashboard');
+            redirect('admin/dashboard');
         }
-        
-        require 'views/admin/dashboard.php';
     }
-    
     // Lista todos los militantes con filtros y paginación
     public function listMilitantes() {
         try {
@@ -270,6 +284,8 @@ public function deleteMilitante() {
     redirect('admin/militantes');
 }
 
+
+
 // Muestra los detalles de un militante
 public function viewMilitante() {
     // Verificar si se proporcionó un ID
@@ -291,5 +307,7 @@ public function viewMilitante() {
     // Cargar la vista de detalles
     require 'views/admin/militantes/details.php';
 }
+
+
 }
 ?>

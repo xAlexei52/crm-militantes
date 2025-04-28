@@ -5,6 +5,111 @@ class Militante {
     public function __construct() {
         $this->conn = getDBConnection();
     }
+
+    // Agregar estos métodos al modelo Militante.php
+
+/**
+ * Obtiene las actividades recientes (últimos militantes registrados)
+ * @param int $limit Número de registros a obtener
+ * @return array Lista de actividades recientes
+ */
+public function getRecentActivity($limit = 5) {
+    $limit = (int)$limit;
+    $query = "SELECT m.id, m.nombre, m.apellido_paterno, m.apellido_materno, 
+                     m.estado, m.municipio, m.created_at, u.nombre as registrado_por
+              FROM militantes m
+              LEFT JOIN usuarios u ON m.registrado_por = u.id
+              ORDER BY m.created_at DESC
+              LIMIT $limit";
+    
+    $result = $this->conn->query($query);
+    
+    $actividades = [];
+    if ($result && $result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $actividades[] = $row;
+        }
+    }
+    
+    return $actividades;
+}
+
+    /**
+     * Obtiene estadísticas de crecimiento mensual
+     * @param int $months Número de meses a comparar
+     * @return array Estadísticas de crecimiento
+     */
+    public function getMonthlyGrowth($months = 2) {
+        $months = (int)$months;
+        
+        // Obtener el mes actual y el mes anterior
+        $currentMonth = date('Y-m');
+        $previousMonth = date('Y-m', strtotime('-1 month'));
+        
+        // Contar militantes del mes actual
+        $queryCurrentMonth = "SELECT COUNT(*) as total FROM militantes 
+                            WHERE DATE_FORMAT(created_at, '%Y-%m') = '$currentMonth'";
+        $resultCurrentMonth = $this->conn->query($queryCurrentMonth);
+        $currentTotal = 0;
+        
+        if ($resultCurrentMonth && $resultCurrentMonth->num_rows > 0) {
+            $currentTotal = $resultCurrentMonth->fetch_assoc()['total'];
+        }
+        
+        // Contar militantes del mes anterior
+        $queryPreviousMonth = "SELECT COUNT(*) as total FROM militantes 
+                            WHERE DATE_FORMAT(created_at, '%Y-%m') = '$previousMonth'";
+        $resultPreviousMonth = $this->conn->query($queryPreviousMonth);
+        $previousTotal = 0;
+        
+        if ($resultPreviousMonth && $resultPreviousMonth->num_rows > 0) {
+            $previousTotal = $resultPreviousMonth->fetch_assoc()['total'];
+        }
+        
+        // Calcular porcentaje de crecimiento
+        $crecimiento = 0;
+        if ($previousTotal > 0) {
+            $crecimiento = (($currentTotal - $previousTotal) / $previousTotal) * 100;
+        } elseif ($currentTotal > 0) {
+            $crecimiento = 100; // Si el mes anterior era 0, el crecimiento es 100%
+        }
+        
+        return [
+            'mes_actual' => [
+                'periodo' => date('F Y'), // Nombre del mes y año
+                'total' => $currentTotal
+            ],
+            'mes_anterior' => [
+                'periodo' => date('F Y', strtotime('-1 month')),
+                'total' => $previousTotal
+            ],
+            'crecimiento_porcentaje' => round($crecimiento, 1),
+            'tendencia' => $crecimiento >= 0 ? 'positiva' : 'negativa'
+        ];
+    }
+
+    /**
+     * Obtiene estadísticas de género
+     * @return array Conteo por género
+     */
+    public function getGenderStats() {
+        $query = "SELECT genero, COUNT(*) as total FROM militantes GROUP BY genero";
+        $result = $this->conn->query($query);
+        
+        $stats = [
+            'M' => 0,
+            'F' => 0,
+            'O' => 0
+        ];
+        
+        if ($result && $result->num_rows > 0) {
+            while($row = $result->fetch_assoc()) {
+                $stats[$row['genero']] = (int)$row['total'];
+            }
+        }
+        
+        return $stats;
+    }
     
     // Obtener todos los militantes con paginación y filtros
     public function getAll($page = 1, $limit = 10, $filters = []) {

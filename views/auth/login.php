@@ -107,7 +107,15 @@
                                 Recordar mi sesión
                             </label>
                         </div>
-                        
+
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm">
+                                <a href="<?= APP_URL ?>/password/reset" class="font-medium text-sky-600 hover:text-sky-500">
+                                    ¿Olvidó su contraseña?
+                                </a>
+                            </div>
+                        </div>
+                                                
                         <!-- Botón de Envío -->
                         <div>
                             <button 

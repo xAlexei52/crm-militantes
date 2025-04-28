@@ -143,7 +143,6 @@ class RegistroController {
             'apellido_materno' => $_POST['apellido_materno'] ?? '',
             'fecha_nacimiento' => $fechaNacimiento,
             'genero' => $_POST['genero'],
-            'edad' => $edad,
             'lugar_nacimiento' => $_POST['lugar_nacimiento'] ?? '',
             
             // Identificación
@@ -164,7 +163,6 @@ class RegistroController {
             // Contacto
             'telefono' => $_POST['telefono'],
             'email' => $_POST['email'] ?? '',
-            'lugar_nacimiento' => $_POST['lugar_nacimiento'] ?? '',
             'imagen_ine' => $imagen_ine,
             'registrado_por' => $registrado_por
         ];
