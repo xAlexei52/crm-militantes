@@ -59,7 +59,7 @@
                         Únete a nuestro movimiento y forma parte del cambio que México necesita.
                     </p>
                     <div class="mt-8 flex justify-center">
-                        <a href="<?= APP_URL ?>/register" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-black bg-white hover:bg-gray-100 transform transition hover:scale-105">
+                        <a href="<?= APP_URL ?>/login" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-black bg-white hover:bg-gray-100 transform transition hover:scale-105">
                             <i class="fas fa-user-plus mr-2"></i> Regístrate Ahora
                         </a>
                     </div>
@@ -147,7 +147,7 @@
                         <div class="mt-8 sm:w-full sm:max-w-md xl:mt-0 xl:ml-8">
                             <div class="sm:flex">
                                 <div class="sm:flex-1">
-                                    <a href="<?= APP_URL ?>/register" class="w-full flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-black bg-white hover:bg-gray-100 transform transition hover:scale-105">
+                                    <a href="<?= APP_URL ?>/login" class="w-full flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-black bg-white hover:bg-gray-100 transform transition hover:scale-105">
                                         Comenzar Registro
                                     </a>
                                 </div>
