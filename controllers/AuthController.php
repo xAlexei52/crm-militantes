@@ -18,6 +18,7 @@ class AuthController {
     }
     
     // Procesa el formulario de login
+
     public function processLogin() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('login');
@@ -50,17 +51,14 @@ class AuthController {
             
             setFlashMessage('success', 'Bienvenido/a ' . $user['nombre']);
             
-            // Redirigir según rol
-            if ($user['role'] == 'admin') {
-                redirect('admin/dashboard');
-            } else {
-                redirect('home');
-            }
+            // Redirigir al dashboard de admin para todos los usuarios
+            redirect('admin/dashboard');
         } else {
             setFlashMessage('error', 'Credenciales inválidas. Intente nuevamente.');
             redirect('login');
         }
     }
+
     
     // Cierra la sesión
     public function logout() {

@@ -11,8 +11,8 @@ class HomeController {
         // Verificar si el usuario está logueado
         $loggedIn = isLoggedIn();
         
-        // Si el usuario es admin, redirigir al dashboard
-        if ($loggedIn && isAdmin()) {
+        // Si el usuario está logueado, redirigir al dashboard
+        if ($loggedIn) {
             redirect('admin/dashboard');
         }
         

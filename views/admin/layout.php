@@ -54,33 +54,39 @@
     </nav>
     
     <div class="flex flex-1 overflow-hidden">
-        <!-- Barra lateral -->
+        <!-- Barra lateral modificada para mostrar elementos según el rol -->
         <div id="sidebar" class="lg:block hidden bg-white w-64 flex-shrink-0 border-r border-gray-200">
             <div class="h-full py-4 flex flex-col justify-between">
                 <div>
                     <div class="px-4 mb-6">
                         <div class="flex flex-col items-center">
                             <div class="h-12 w-12 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 mb-2">
-                                <i class="fas fa-user-shield text-xl"></i>
+                                <i class="fas <?= isAdmin() ? 'fa-user-shield' : 'fa-user' ?> text-xl"></i>
                             </div>
                             <div class="text-center">
                                 <p class="font-medium"><?= $_SESSION['user_name'] ?></p>
-                                <p class="text-xs text-gray-500">Administrador</p>
+                                <p class="text-xs text-gray-500"><?= isAdmin() ? 'Administrador' : 'Operador' ?></p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="px-4 space-y-1">
+                        <!-- Dashboard accesible para todos los usuarios logueados -->
                         <a href="<?= APP_URL ?>/admin/dashboard" class="block px-4 py-2 rounded-md text-sm font-medium transition <?= strpos($_SERVER['REQUEST_URI'], '/admin/dashboard') !== false ? 'sidebar-active' : 'text-gray-600 hover:bg-gray-50' ?>">
                             <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
                         </a>
+                        
+                        <!-- Militantes accesible para todos los usuarios logueados -->
                         <a href="<?= APP_URL ?>/admin/militantes" class="block px-4 py-2 rounded-md text-sm font-medium transition <?= strpos($_SERVER['REQUEST_URI'], '/admin/militantes') !== false ? 'sidebar-active' : 'text-gray-600 hover:bg-gray-50' ?>">
                             <i class="fas fa-users mr-3"></i> Militantes
                         </a>
+                        
+                        <!-- Mensajes accesible para todos los usuarios logueados -->
                         <a href="<?= APP_URL ?>/admin/mensajes" class="block px-4 py-2 rounded-md text-sm font-medium transition <?= strpos($_SERVER['REQUEST_URI'], '/admin/mensajes') !== false ? 'sidebar-active' : 'text-gray-600 hover:bg-gray-50' ?>">
                             <i class="fas fa-sms mr-3"></i> Envío de Mensajes
                         </a>
-                        <!-- Menú de gestión de usuarios, solo visible para administradores -->
+                        
+                        <!-- Gestión de usuarios, solo visible para administradores -->
                         <?php if (isAdmin()): ?>
                             <a href="<?= APP_URL ?>/admin/usuarios" class="block px-4 py-2 rounded-md text-sm font-medium transition <?= strpos($_SERVER['REQUEST_URI'], '/admin/usuarios') !== false ? 'sidebar-active' : 'text-gray-600 hover:bg-gray-50' ?>">
                                 <i class="fas fa-users-cog mr-3"></i> Gestión de Usuarios
@@ -89,7 +95,7 @@
                     </div>
                 </div>
                 
-                <!-- Botón de cerrar sesión en el sidebar -->
+                <!-- Botón de cerrar sesión en el sidebar (igual para todos) -->
                 <div class="px-4 mt-auto border-t border-gray-200 pt-4">
                     <a href="<?= APP_URL ?>/" class="block px-4 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
                         <i class="fas fa-home mr-3"></i> Ir al sitio

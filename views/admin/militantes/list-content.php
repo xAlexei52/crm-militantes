@@ -7,46 +7,47 @@
         </a>
     </div>
     
-    <!-- Filtros de búsqueda -->
-    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
-        <form action="<?= APP_URL ?>/admin/militantes" method="GET" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre o Apellido</label>
-                    <input 
-                        type="text" 
-                        id="nombre" 
-                        name="nombre" 
-                        value="<?= isset($_GET['nombre']) ? htmlspecialchars($_GET['nombre']) : '' ?>"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-                        placeholder="Buscar por nombre..."
-                    >
-                </div>
-                
-                <div>
-                    <label for="clave_elector" class="block text-sm font-medium text-gray-700 mb-1">Clave de Elector</label>
-                    <input 
-                        type="text" 
-                        id="clave_elector" 
-                        name="clave_elector"
-                        value="<?= isset($_GET['clave_elector']) ? htmlspecialchars($_GET['clave_elector']) : '' ?>"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-                        placeholder="ABCD123456HDFGHI12"
-                    >
-                </div>
-                
-                <div>
-                    <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                    <select 
-                        id="estado" 
-                        name="estado" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-                    >
-                        <option value="">Todos los estados</option>
-                        <?php
-                        // Usar una variable diferente para evitar sobrescribir $result
+    <!-- Filtros de búsqueda mejorados -->
+<div class="bg-white p-4 rounded-lg shadow-md mb-6">
+    <form action="<?= APP_URL ?>/admin/militantes" method="GET" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre o Apellido</label>
+                <input 
+                    type="text" 
+                    id="nombre" 
+                    name="nombre" 
+                    value="<?= isset($_GET['nombre']) ? htmlspecialchars($_GET['nombre']) : '' ?>"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                    placeholder="Buscar por nombre..."
+                >
+            </div>
+            
+            <div>
+                <label for="clave_elector" class="block text-sm font-medium text-gray-700 mb-1">Clave de Elector</label>
+                <input 
+                    type="text" 
+                    id="clave_elector" 
+                    name="clave_elector"
+                    value="<?= isset($_GET['clave_elector']) ? htmlspecialchars($_GET['clave_elector']) : '' ?>"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                    placeholder="ABCD123456HDFGHI12"
+                >
+            </div>
+            
+            <div>
+                <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                <select 
+                    id="estado" 
+                    name="estado" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                >
+                    <option value="">Todos los estados</option>
+                    <?php
+                    // Obtener la lista de estados desde la base de datos
+                    try {
                         $conn = getDBConnection();
-                        $query = "SELECT DISTINCT estado FROM militantes ORDER BY estado";
+                        $query = "SELECT DISTINCT estado FROM militantes WHERE estado != '' ORDER BY estado";
                         $estadosResult = $conn->query($query);
                         
                         if ($estadosResult && $estadosResult->num_rows > 0) {
@@ -55,33 +56,37 @@
                                 echo "<option value=\"" . htmlspecialchars($row['estado']) . "\" $selected>" . htmlspecialchars($row['estado']) . "</option>";
                             }
                         }
-                        ?>
-                    </select>
-                </div>
-                
-                <div>
-                    <label for="municipio" class="block text-sm font-medium text-gray-700 mb-1">Municipio</label>
-                    <input 
-                        type="text" 
-                        id="municipio" 
-                        name="municipio"
-                        value="<?= isset($_GET['municipio']) ? htmlspecialchars($_GET['municipio']) : '' ?>"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-                        placeholder="Buscar por municipio..."
-                    >
-                </div>
+                    } catch (Exception $e) {
+                        // Si hay error, mostrar mensaje en consola y continuar
+                        error_log("Error al cargar estados: " . $e->getMessage());
+                    }
+                    ?>
+                </select>
             </div>
             
-            <div class="flex justify-end">
-                <a href="<?= APP_URL ?>/admin/militantes" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 mr-3">
-                    Limpiar Filtros
-                </a>
-                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-sky-800 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">
-                    <i class="fas fa-search mr-2"></i> Buscar
-                </button>
+            <div>
+                <label for="municipio" class="block text-sm font-medium text-gray-700 mb-1">Municipio</label>
+                <input 
+                    type="text" 
+                    id="municipio" 
+                    name="municipio"
+                    value="<?= isset($_GET['municipio']) ? htmlspecialchars($_GET['municipio']) : '' ?>"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                    placeholder="Buscar por municipio..."
+                >
             </div>
-        </form>
-    </div>
+        </div>
+        
+        <div class="flex justify-end">
+            <a href="<?= APP_URL ?>/admin/militantes" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 mr-3">
+                <i class="fas fa-eraser mr-2"></i> Limpiar Filtros
+            </a>
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-sky-800 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">
+                <i class="fas fa-search mr-2"></i> Buscar
+            </button>
+        </div>
+    </form>
+</div>
     
     <!-- Resultados -->
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -145,7 +150,7 @@
                 </table>
             </div>
             
-            <!-- Paginación -->
+            <!-- Paginación corregida -->
             <?php if (isset($result['pages']) && $result['pages'] > 1): ?>
                 <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
                     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
@@ -158,14 +163,34 @@
                         </div>
                         <div>
                             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <?php
+                                // Función para generar URL con parámetros de filtro actuales
+                                function getPaginationUrl($page) {
+                                    $params = ['page' => $page];
+                                    
+                                    // Mantener los filtros actuales en la URL
+                                    $filterParams = ['nombre', 'clave_elector', 'estado', 'municipio'];
+                                    foreach ($filterParams as $param) {
+                                        if (isset($_GET[$param]) && $_GET[$param] !== '') {
+                                            $params[$param] = $_GET[$param];
+                                        }
+                                    }
+                                    
+                                    // Construir la URL base
+                                    $url = APP_URL . '/admin/militantes';
+                                    
+                                    // Añadir parámetros a la URL
+                                    if (!empty($params)) {
+                                        $url .= '?' . http_build_query($params);
+                                    }
+                                    
+                                    return $url;
+                                }
+                                ?>
+                                
                                 <!-- Botón anterior -->
                                 <?php if ($result['current_page'] > 1): ?>
-                                    <a href="<?= APP_URL ?>/admin/militantes?page=<?= $result['current_page'] - 1 ?><?= 
-                                        (isset($_GET['nombre']) ? '&nombre=' . urlencode($_GET['nombre']) : '') . 
-                                        (isset($_GET['clave_elector']) ? '&clave_elector=' . urlencode($_GET['clave_elector']) : '') . 
-                                        (isset($_GET['estado']) ? '&estado=' . urlencode($_GET['estado']) : '') . 
-                                        (isset($_GET['municipio']) ? '&municipio=' . urlencode($_GET['municipio']) : '') 
-                                    ?>" 
+                                    <a href="<?= getPaginationUrl($result['current_page'] - 1) ?>" 
                                     class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                         <span class="sr-only">Anterior</span>
                                         <i class="fas fa-chevron-left"></i>
@@ -179,13 +204,29 @@
                                 
                                 <!-- Números de página -->
                                 <?php 
+                                // Determinar el rango de páginas a mostrar
                                 $start = max(1, $result['current_page'] - 2);
                                 $end = min($result['pages'], $result['current_page'] + 2);
                                 
-                                if ($start > 1) {
-                                    echo '<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>';
+                                // Si estamos cerca del inicio o final, ajustar el rango
+                                if ($start < 3) {
+                                    $end = min($result['pages'], 5);
+                                }
+                                if ($end > $result['pages'] - 2) {
+                                    $start = max(1, $result['pages'] - 4);
                                 }
                                 
+                                // Mostrar enlace a la primera página si no estamos en las primeras páginas
+                                if ($start > 1) {
+                                    echo '<a href="' . getPaginationUrl(1) . '" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">1</a>';
+                                    
+                                    // Mostrar elipsis si hay salto
+                                    if ($start > 2) {
+                                        echo '<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>';
+                                    }
+                                }
+                                
+                                // Mostrar las páginas en el rango calculado
                                 for ($i = $start; $i <= $end; $i++): 
                                 ?>
                                     <?php if ($i == $result['current_page']): ?>
@@ -193,12 +234,7 @@
                                             <?= $i ?>
                                         </span>
                                     <?php else: ?>
-                                        <a href="<?= APP_URL ?>/admin/militantes?page=<?= $i ?><?= 
-                                            (isset($_GET['nombre']) ? '&nombre=' . urlencode($_GET['nombre']) : '') . 
-                                            (isset($_GET['clave_elector']) ? '&clave_elector=' . urlencode($_GET['clave_elector']) : '') . 
-                                            (isset($_GET['estado']) ? '&estado=' . urlencode($_GET['estado']) : '') . 
-                                            (isset($_GET['municipio']) ? '&municipio=' . urlencode($_GET['municipio']) : '') 
-                                        ?>" 
+                                        <a href="<?= getPaginationUrl($i) ?>" 
                                         class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
                                             <?= $i ?>
                                         </a>
@@ -206,19 +242,21 @@
                                 <?php endfor; ?>
                                 
                                 <?php 
+                                // Mostrar elipsis y última página si no estamos en las últimas páginas
                                 if ($end < $result['pages']) {
-                                    echo '<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>';
+                                    // Mostrar elipsis si hay salto
+                                    if ($end < $result['pages'] - 1) {
+                                        echo '<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>';
+                                    }
+                                    
+                                    // Enlace a la última página
+                                    echo '<a href="' . getPaginationUrl($result['pages']) . '" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">' . $result['pages'] . '</a>';
                                 }
                                 ?>
                                 
                                 <!-- Botón siguiente -->
                                 <?php if ($result['current_page'] < $result['pages']): ?>
-                                    <a href="<?= APP_URL ?>/admin/militantes?page=<?= $result['current_page'] + 1 ?><?= 
-                                        (isset($_GET['nombre']) ? '&nombre=' . urlencode($_GET['nombre']) : '') . 
-                                        (isset($_GET['clave_elector']) ? '&clave_elector=' . urlencode($_GET['clave_elector']) : '') . 
-                                        (isset($_GET['estado']) ? '&estado=' . urlencode($_GET['estado']) : '') . 
-                                        (isset($_GET['municipio']) ? '&municipio=' . urlencode($_GET['municipio']) : '') 
-                                    ?>" 
+                                    <a href="<?= getPaginationUrl($result['current_page'] + 1) ?>" 
                                     class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                         <span class="sr-only">Siguiente</span>
                                         <i class="fas fa-chevron-right"></i>
@@ -230,6 +268,42 @@
                                     </span>
                                 <?php endif; ?>
                             </nav>
+                        </div>
+                    </div>
+                    
+                    <!-- Versión móvil simplificada -->
+                    <div class="flex flex-col sm:hidden">
+                        <div class="flex justify-between mb-3">
+                            <p class="text-sm text-gray-700">
+                                Página <span class="font-medium"><?= $result['current_page'] ?></span> de 
+                                <span class="font-medium"><?= $result['pages'] ?></span>
+                            </p>
+                            <p class="text-sm text-gray-700">
+                                Total: <span class="font-medium"><?= $result['total'] ?></span>
+                            </p>
+                        </div>
+                        <div class="flex justify-between">
+                            <?php if ($result['current_page'] > 1): ?>
+                                <a href="<?= getPaginationUrl($result['current_page'] - 1) ?>" 
+                                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    <i class="fas fa-chevron-left mr-2"></i> Anterior
+                                </a>
+                            <?php else: ?>
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
+                                    <i class="fas fa-chevron-left mr-2"></i> Anterior
+                                </span>
+                            <?php endif; ?>
+                            
+                            <?php if ($result['current_page'] < $result['pages']): ?>
+                                <a href="<?= getPaginationUrl($result['current_page'] + 1) ?>" 
+                                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Siguiente <i class="fas fa-chevron-right ml-2"></i>
+                                </a>
+                            <?php else: ?>
+                                <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
+                                    Siguiente <i class="fas fa-chevron-right ml-2"></i>
+                                </span>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

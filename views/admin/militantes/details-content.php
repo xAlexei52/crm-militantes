@@ -1,3 +1,5 @@
+
+
 <div>
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Detalles del Militante</h1>
@@ -11,7 +13,7 @@
             </a>
         </div>
     </div>
-    
+
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <!-- Tarjeta de perfil -->
         <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center space-x-4">
@@ -223,15 +225,71 @@
                     <!-- Medio de Transporte -->
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <h3 class="text-sm font-medium text-gray-500 mb-1">Medio de Transporte</h3>
-                        <p class="text-base text-gray-900"><?= !empty($militante['medio_transporte']) ? htmlspecialchars($militante['medio_transporte']) : 'No especificado' ?></p>
+                        <p class="text-base text-gray-900">
+                            <?php 
+                            if (!empty($militante['medio_transporte'])) {
+                                // Convertir el valor de la base de datos a texto más amigable
+                                $transportes = [
+                                    'auto_propio' => 'Auto propio',
+                                    'transporte_publico' => 'Transporte público',
+                                    'bicicleta' => 'Bicicleta',
+                                    'moto' => 'Motocicleta',
+                                    'a_pie' => 'A pie',
+                                    'uber_didi' => 'Uber / Didi / Taxi',
+                                    'otro' => 'Otro'
+                                ];
+                                echo isset($transportes[$militante['medio_transporte']]) ? 
+                                    htmlspecialchars($transportes[$militante['medio_transporte']]) : 
+                                    htmlspecialchars($militante['medio_transporte']);
+                            } else {
+                                echo 'No especificado';
+                            }
+                            ?>
+                        </p>
                     </div>
                     
                     <!-- Nivel de Estudios -->
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <h3 class="text-sm font-medium text-gray-500 mb-1">Nivel de Estudios</h3>
-                        <p class="text-base text-gray-900"><?= !empty($militante['nivel_estudios']) ? htmlspecialchars($militante['nivel_estudios']) : 'No especificado' ?></p>
+                        <p class="text-base text-gray-900">
+                            <?php 
+                            if (!empty($militante['nivel_estudios'])) {
+                                // Convertir el valor de la base de datos a texto más amigable
+                                $estudios = [
+                                    'sin_estudios' => 'Sin estudios',
+                                    'primaria_incompleta' => 'Primaria incompleta',
+                                    'primaria_completa' => 'Primaria completa',
+                                    'secundaria_incompleta' => 'Secundaria incompleta',
+                                    'secundaria_completa' => 'Secundaria completa',
+                                    'preparatoria_incompleta' => 'Preparatoria/Bachillerato incompleto',
+                                    'preparatoria_completa' => 'Preparatoria/Bachillerato completo',
+                                    'tecnico' => 'Técnico o carrera técnica',
+                                    'universidad_incompleta' => 'Universidad incompleta',
+                                    'universidad_completa' => 'Universidad completa',
+                                    'posgrado' => 'Posgrado (Maestría, Doctorado, etc.)'
+                                ];
+                                echo isset($estudios[$militante['nivel_estudios']]) ? 
+                                    htmlspecialchars($estudios[$militante['nivel_estudios']]) : 
+                                    htmlspecialchars($militante['nivel_estudios']);
+                            } else {
+                                echo 'No especificado';
+                            }
+                            ?>
+                        </p>
                     </div>
                     
+                    <!-- Sección Electoral -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-sm font-medium text-gray-500 mb-1">Sección Electoral</h3>
+                        <p class="text-base text-gray-900">
+                            <?= !empty($militante['seccion']) ? htmlspecialchars($militante['seccion']) : 'No especificado' ?>
+                        </p>
+                    </div>
+
+                    <div class="col-span-1 md:col-span-2">
+                        <h3 class="text-lg font-medium text-gray-700 mb-3 pb-2 border-b border-gray-200 mt-6">Información del Registro</h3>
+                    </div>
+
                     <!-- Fecha de Registro -->
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <h3 class="text-sm font-medium text-gray-500 mb-1">Fecha de Registro</h3>
@@ -242,34 +300,63 @@
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <h3 class="text-sm font-medium text-gray-500 mb-1">Última Actualización</h3>
                         <p class="text-base text-gray-900">
-                            <?= isset($militante['updated_at']) ? date('d/m/Y H:i', strtotime($militante['updated_at'])) : 'Sin actualizaciones' ?>
+                            <?= isset($militante['updated_at']) && $militante['updated_at'] != $militante['created_at'] ? 
+                                date('d/m/Y H:i', strtotime($militante['updated_at'])) : 
+                                'Sin actualizaciones desde el registro' ?>
                         </p>
                     </div>
                     
-                    <!-- Registrado por -->
-                    <div class="bg-gray-50 p-4 rounded-lg">
+                    <!-- Registrado por (versión mejorada) -->
+                    <div class="bg-gray-50 p-4 rounded-lg col-span-1 md:col-span-2">
                         <h3 class="text-sm font-medium text-gray-500 mb-1">Registrado por</h3>
-                        <p class="text-base text-gray-900">
+                        <?php if (!empty($militante['registrado_por'])): ?>
                             <?php
-                            if (isset($militante['registrado_por'])) {
+                                // Consultar la tabla de usuarios para obtener el nombre y email
                                 $conn = getDBConnection();
                                 $registradorId = (int)$militante['registrado_por'];
-                                $query = "SELECT nombre FROM usuarios WHERE id = $registradorId";
+                                $query = "SELECT nombre, email, role FROM usuarios WHERE id = $registradorId LIMIT 1";
                                 $result = $conn->query($query);
-                                if ($result && $result->num_rows > 0) {
-                                    echo htmlspecialchars($result->fetch_assoc()['nombre']);
-                                } else {
-                                    echo 'Usuario desconocido';
-                                }
-                            } else {
-                                echo 'No registrado';
-                            }
+                                
+                                if ($result && $result->num_rows > 0):
+                                    $registrador = $result->fetch_assoc();
                             ?>
-                        </p>
+                                <div class="flex items-center mt-1">
+                                    <div class="flex-shrink-0">
+                                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-base font-medium text-gray-900"><?= htmlspecialchars($registrador['nombre']) ?></p>
+                                        <div class="flex items-center">
+                                            <p class="text-sm text-gray-500 mr-2"><?= htmlspecialchars($registrador['email']) ?></p>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                <?= $registrador['role'] === 'admin' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800' ?>">
+                                                <?= $registrador['role'] === 'admin' ? 'Administrador' : 'Operador' ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php else: ?>
+                                <p class="text-base text-gray-900">
+                                    Usuario desconocido (ID: <?= $registradorId ?>)
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    El usuario registrador ya no existe en el sistema
+                                </p>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <p class="text-base text-gray-900">
+                                No registrado
+                            </p>
+                            <p class="text-xs text-gray-500">
+                                Registro añadido sin usuario asociado
+                            </p>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
-            
+                        
             <!-- Tab: Documento INE -->
             <!-- <div id="content-documento" class="tab-content hidden">
                 <?php if (!empty($militante['imagen_ine'])): ?>

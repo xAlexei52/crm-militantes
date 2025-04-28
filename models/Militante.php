@@ -113,9 +113,14 @@ public function getRecentActivity($limit = 5) {
     
     // Obtener todos los militantes con paginación y filtros
     public function getAll($page = 1, $limit = 10, $filters = []) {
+        // Validar parámetros
+        $page = max(1, intval($page));
+        $limit = max(1, intval($limit));
         $offset = ($page - 1) * $limit;
         
+        // Construir la cláusula WHERE base
         $whereClause = "WHERE 1=1";
+        $params = [];
         
         // Aplicar filtros si existen
         if (!empty($filters['nombre'])) {
@@ -135,18 +140,7 @@ public function getRecentActivity($limit = 5) {
         
         if (!empty($filters['municipio'])) {
             $municipio = sanitizeInput($filters['municipio']);
-            $whereClause .= " AND municipio = '$municipio'";
-        }
-        
-        // Consulta para obtener militantes con paginación
-        $query = "SELECT * FROM militantes $whereClause ORDER BY created_at DESC LIMIT $offset, $limit";
-        $result = $this->conn->query($query);
-        
-        $militantes = [];
-        if ($result && $result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                $militantes[] = $row;
-            }
+            $whereClause .= " AND municipio LIKE '%$municipio%'";
         }
         
         // Consulta para contar el total de militantes (para paginación)
@@ -158,10 +152,34 @@ public function getRecentActivity($limit = 5) {
             $totalCount = $countResult->fetch_assoc()['total'];
         }
         
+        // Calcular total de páginas
+        $totalPages = ceil($totalCount / $limit);
+        
+        // Si la página solicitada es mayor que el total de páginas, ir a la última página
+        if ($page > $totalPages && $totalPages > 0) {
+            $page = $totalPages;
+            $offset = ($page - 1) * $limit;
+        }
+        
+        // Consulta para obtener militantes con paginación
+        $query = "SELECT * FROM militantes $whereClause ORDER BY created_at DESC LIMIT $offset, $limit";
+        
+        // Depuración
+        error_log("SQL Query: $query", 3, __DIR__ . '/../logs/sql.log');
+        
+        $result = $this->conn->query($query);
+        
+        $militantes = [];
+        if ($result && $result->num_rows > 0) {
+            while($row = $result->fetch_assoc()) {
+                $militantes[] = $row;
+            }
+        }
+        
         return [
             'militantes' => $militantes,
             'total' => $totalCount,
-            'pages' => ceil($totalCount / $limit),
+            'pages' => $totalPages,
             'current_page' => $page
         ];
     }
@@ -179,9 +197,8 @@ public function getRecentActivity($limit = 5) {
         return null;
     }
     
-    // Crear nuevo militante
     public function create($data) {
-        // Calcular edad basado en fecha de nacimiento
+        // Calcular edad basada en fecha de nacimiento
         $edad = null;
         if (!empty($data['fecha_nacimiento'])) {
             $fechaNac = new DateTime($data['fecha_nacimiento']);
@@ -189,7 +206,7 @@ public function getRecentActivity($limit = 5) {
             $edad = $hoy->diff($fechaNac)->y;
         }
         
-        // Campos obligatorios
+        // Preparar campos obligatorios
         $nombre = sanitizeInput($data['nombre']);
         $apellido_paterno = sanitizeInput($data['apellido_paterno']);
         $apellido_materno = isset($data['apellido_materno']) ? sanitizeInput($data['apellido_materno']) : '';
@@ -199,28 +216,32 @@ public function getRecentActivity($limit = 5) {
         $estado = sanitizeInput($data['estado']);
         $municipio = sanitizeInput($data['municipio']);
         
-        // Campos adicionales (pueden ser nulos)
-        $edad = isset($edad) ? $edad : 'NULL';
-        $lugar_nacimiento = isset($data['lugar_nacimiento']) ? "'" . sanitizeInput($data['lugar_nacimiento']) . "'" : 'NULL';
-        $curp = isset($data['curp']) ? "'" . sanitizeInput($data['curp']) . "'" : 'NULL';
-        $folio_nacional = isset($data['folio_nacional']) ? "'" . sanitizeInput($data['folio_nacional']) . "'" : 'NULL';
-        $fecha_inscripcion_padron = isset($data['fecha_inscripcion_padron']) ? "'" . sanitizeInput($data['fecha_inscripcion_padron']) . "'" : 'NULL';
-        $domicilio = isset($data['domicilio']) ? "'" . sanitizeInput($data['domicilio']) . "'" : 'NULL';
-        $calle = isset($data['calle']) ? "'" . sanitizeInput($data['calle']) . "'" : 'NULL';
-        $codigo_postal = isset($data['codigo_postal']) ? "'" . sanitizeInput($data['codigo_postal']) . "'" : 'NULL';
-        $numero_exterior = isset($data['numero_exterior']) ? "'" . sanitizeInput($data['numero_exterior']) . "'" : 'NULL';
-        $numero_interior = isset($data['numero_interior']) ? "'" . sanitizeInput($data['numero_interior']) . "'" : 'NULL';
-        $colonia = isset($data['colonia']) ? "'" . sanitizeInput($data['colonia']) . "'" : 'NULL';
-        $seccion = isset($data['seccion']) ? "'" . sanitizeInput($data['seccion']) . "'" : 'NULL';
-        $telefono = isset($data['telefono']) ? "'" . sanitizeInput($data['telefono']) . "'" : 'NULL';
-        $email = isset($data['email']) ? "'" . sanitizeInput($data['email']) . "'" : 'NULL';
-        $imagen_ine = isset($data['imagen_ine']) ? "'" . sanitizeInput($data['imagen_ine']) . "'" : 'NULL';
-        $salario_mensual = isset($data['salario_mensual']) ? (float)$data['salario_mensual'] : 'NULL';
-        $medio_transporte = isset($data['medio_transporte']) ? "'" . sanitizeInput($data['medio_transporte']) . "'" : 'NULL';
-        $nivel_estudios = isset($data['nivel_estudios']) ? "'" . sanitizeInput($data['nivel_estudios']) . "'" : 'NULL';
-        $registrado_por = isset($data['registrado_por']) ? (int)$data['registrado_por'] : 'NULL';
+        // Preparar valores para campos opcionales evitando 'NULL' como string
+        $edad_val = isset($edad) ? $edad : 'NULL';
+        $lugar_nacimiento_val = !empty($data['lugar_nacimiento']) ? "'" . sanitizeInput($data['lugar_nacimiento']) . "'" : 'NULL';
+        $curp_val = !empty($data['curp']) ? "'" . sanitizeInput($data['curp']) . "'" : 'NULL';
+        $folio_nacional_val = !empty($data['folio_nacional']) ? "'" . sanitizeInput($data['folio_nacional']) . "'" : 'NULL';
+        $fecha_inscripcion_padron_val = !empty($data['fecha_inscripcion_padron']) ? "'" . sanitizeInput($data['fecha_inscripcion_padron']) . "'" : 'NULL';
+        $domicilio_val = !empty($data['domicilio']) ? "'" . sanitizeInput($data['domicilio']) . "'" : 'NULL';
+        $calle_val = !empty($data['calle']) ? "'" . sanitizeInput($data['calle']) . "'" : 'NULL';
+        $codigo_postal_val = !empty($data['codigo_postal']) ? "'" . sanitizeInput($data['codigo_postal']) . "'" : 'NULL';
+        $numero_exterior_val = !empty($data['numero_exterior']) ? "'" . sanitizeInput($data['numero_exterior']) . "'" : 'NULL';
+        $numero_interior_val = !empty($data['numero_interior']) ? "'" . sanitizeInput($data['numero_interior']) . "'" : 'NULL';
+        $colonia_val = !empty($data['colonia']) ? "'" . sanitizeInput($data['colonia']) . "'" : 'NULL';
+        $seccion_val = !empty($data['seccion']) ? "'" . sanitizeInput($data['seccion']) . "'" : 'NULL';
+        $telefono_val = !empty($data['telefono']) ? "'" . sanitizeInput($data['telefono']) . "'" : 'NULL';
+        $email_val = !empty($data['email']) ? "'" . sanitizeInput($data['email']) . "'" : 'NULL';
+        $imagen_ine_val = !empty($data['imagen_ine']) ? "'" . sanitizeInput($data['imagen_ine']) . "'" : 'NULL';
         
-        // Construir la consulta (utilizando los campos que no son NULL)
+        // Campos numéricos o decimales
+        $salario_mensual_val = isset($data['salario_mensual']) && $data['salario_mensual'] !== '' ? (float)$data['salario_mensual'] : 'NULL';
+        $registrado_por_val = isset($data['registrado_por']) && $data['registrado_por'] !== '' ? (int)$data['registrado_por'] : 'NULL';
+        
+        // Otros campos de texto
+        $medio_transporte_val = !empty($data['medio_transporte']) ? "'" . sanitizeInput($data['medio_transporte']) . "'" : 'NULL';
+        $nivel_estudios_val = !empty($data['nivel_estudios']) ? "'" . sanitizeInput($data['nivel_estudios']) . "'" : 'NULL';
+        
+        // Construir la consulta (NO incluimos el campo ID para que MySQL use AUTO_INCREMENT)
         $query = "INSERT INTO militantes (
                     nombre, apellido_paterno, apellido_materno, fecha_nacimiento, 
                     edad, lugar_nacimiento, genero, clave_elector, curp, folio_nacional,
@@ -230,77 +251,91 @@ public function getRecentActivity($limit = 5) {
                     medio_transporte, nivel_estudios, registrado_por, created_at
                   ) VALUES (
                     '$nombre', '$apellido_paterno', '$apellido_materno', '$fecha_nacimiento', 
-                    $edad, $lugar_nacimiento, '$genero', '$clave_elector', $curp, $folio_nacional,
-                    $fecha_inscripcion_padron, $domicilio, $calle, $codigo_postal, 
-                    $numero_exterior, $numero_interior, $colonia, '$estado', '$municipio', 
-                    $seccion, $telefono, $email, $imagen_ine, $salario_mensual,
-                    $medio_transporte, $nivel_estudios, $registrado_por, NOW()
+                    $edad_val, $lugar_nacimiento_val, '$genero', '$clave_elector', $curp_val, $folio_nacional_val,
+                    $fecha_inscripcion_padron_val, $domicilio_val, $calle_val, $codigo_postal_val, 
+                    $numero_exterior_val, $numero_interior_val, $colonia_val, '$estado', '$municipio', 
+                    $seccion_val, $telefono_val, $email_val, $imagen_ine_val, $salario_mensual_val,
+                    $medio_transporte_val, $nivel_estudios_val, $registrado_por_val, NOW()
                   )";
+        
+        // Depuración (guarda la consulta en un archivo de log)
+        error_log('SQL Query: ' . $query, 3, __DIR__ . '/../logs/sql.log');
         
         if ($this->conn->query($query)) {
             return $this->conn->insert_id;
         }
         
+        // Si hay error, registrarlo
+        error_log('SQL Error: ' . $this->conn->error, 3, __DIR__ . '/../logs/sql_error.log');
         return false;
     }
     
-    // Actualizar militante
     public function update($id, $data) {
         $id = (int)$id;
         
         // Calcular edad basado en fecha de nacimiento si está proporcionada
-        $edadStr = '';
         if (!empty($data['fecha_nacimiento'])) {
             $fechaNac = new DateTime($data['fecha_nacimiento']);
             $hoy = new DateTime();
             $edad = $hoy->diff($fechaNac)->y;
-            $edadStr = "edad = $edad,";
+            $data['edad'] = $edad; // Añadir la edad calculada a los datos
         }
         
         // Construir la parte SET de la consulta con los campos proporcionados
         $setParts = [];
         
-        // Campos básicos
-        if (isset($data['nombre'])) $setParts[] = "nombre = '" . sanitizeInput($data['nombre']) . "'";
-        if (isset($data['apellido_paterno'])) $setParts[] = "apellido_paterno = '" . sanitizeInput($data['apellido_paterno']) . "'";
-        if (isset($data['apellido_materno'])) $setParts[] = "apellido_materno = '" . sanitizeInput($data['apellido_materno']) . "'";
-        if (isset($data['fecha_nacimiento'])) $setParts[] = "fecha_nacimiento = '" . sanitizeInput($data['fecha_nacimiento']) . "'";
-        if (isset($data['genero'])) $setParts[] = "genero = '" . sanitizeInput($data['genero']) . "'";
-        if (isset($data['clave_elector'])) $setParts[] = "clave_elector = '" . sanitizeInput($data['clave_elector']) . "'";
+        // Campos de texto básicos
+        $textFields = [
+            'nombre', 'apellido_paterno', 'apellido_materno', 'fecha_nacimiento',
+            'genero', 'clave_elector', 'lugar_nacimiento', 'curp', 'folio_nacional',
+            'fecha_inscripcion_padron', 'domicilio', 'calle', 'codigo_postal',
+            'numero_exterior', 'numero_interior', 'colonia', 'estado', 'municipio',
+            'seccion', 'telefono', 'email', 'imagen_ine', 'medio_transporte', 'nivel_estudios'
+        ];
         
-        // Campos adicionales
-        if (isset($data['lugar_nacimiento'])) $setParts[] = "lugar_nacimiento = '" . sanitizeInput($data['lugar_nacimiento']) . "'";
-        if (isset($data['curp'])) $setParts[] = "curp = '" . sanitizeInput($data['curp']) . "'";
-        if (isset($data['folio_nacional'])) $setParts[] = "folio_nacional = '" . sanitizeInput($data['folio_nacional']) . "'";
-        if (isset($data['fecha_inscripcion_padron'])) $setParts[] = "fecha_inscripcion_padron = '" . sanitizeInput($data['fecha_inscripcion_padron']) . "'";
-        if (isset($data['domicilio'])) $setParts[] = "domicilio = '" . sanitizeInput($data['domicilio']) . "'";
-        if (isset($data['calle'])) $setParts[] = "calle = '" . sanitizeInput($data['calle']) . "'";
-        if (isset($data['codigo_postal'])) $setParts[] = "codigo_postal = '" . sanitizeInput($data['codigo_postal']) . "'";
-        if (isset($data['numero_exterior'])) $setParts[] = "numero_exterior = '" . sanitizeInput($data['numero_exterior']) . "'";
-        if (isset($data['numero_interior'])) $setParts[] = "numero_interior = '" . sanitizeInput($data['numero_interior']) . "'";
-        if (isset($data['colonia'])) $setParts[] = "colonia = '" . sanitizeInput($data['colonia']) . "'";
-        if (isset($data['estado'])) $setParts[] = "estado = '" . sanitizeInput($data['estado']) . "'";
-        if (isset($data['municipio'])) $setParts[] = "municipio = '" . sanitizeInput($data['municipio']) . "'";
-        if (isset($data['seccion'])) $setParts[] = "seccion = '" . sanitizeInput($data['seccion']) . "'";
-        if (isset($data['telefono'])) $setParts[] = "telefono = '" . sanitizeInput($data['telefono']) . "'";
-        if (isset($data['email'])) $setParts[] = "email = '" . sanitizeInput($data['email']) . "'";
-        if (isset($data['salario_mensual'])) $setParts[] = "salario_mensual = " . (float)$data['salario_mensual'];
-        if (isset($data['medio_transporte'])) $setParts[] = "medio_transporte = '" . sanitizeInput($data['medio_transporte']) . "'";
-        if (isset($data['nivel_estudios'])) $setParts[] = "nivel_estudios = '" . sanitizeInput($data['nivel_estudios']) . "'";
+        foreach ($textFields as $field) {
+            if (isset($data[$field]) && $data[$field] !== '') {
+                $setParts[] = "$field = '" . sanitizeInput($data[$field]) . "'";
+            } else if (isset($data[$field]) && $data[$field] === '') {
+                $setParts[] = "$field = NULL";
+            }
+        }
         
-        // Incluir la edad si la calculamos
-        if (!empty($edadStr)) {
-            $setParts[] = trim($edadStr, ',');
+        // Campos numéricos
+        if (isset($data['edad'])) {
+            $setParts[] = "edad = " . (int)$data['edad'];
+        }
+        
+        if (isset($data['salario_mensual'])) {
+            if ($data['salario_mensual'] === '' || $data['salario_mensual'] === null) {
+                $setParts[] = "salario_mensual = NULL";
+            } else {
+                $setParts[] = "salario_mensual = " . (float)$data['salario_mensual'];
+            }
         }
         
         // Añadir timestamp de actualización
         $setParts[] = "updated_at = NOW()";
         
+        // Verificar que haya cambios para actualizar
+        if (empty($setParts)) {
+            return true; // No hay cambios que hacer, consideramos exitoso
+        }
+        
         // Construir la consulta final
         $setClause = implode(', ', $setParts);
         $query = "UPDATE militantes SET $setClause WHERE id = $id";
         
-        return $this->conn->query($query);
+        // Depuración (guarda la consulta en un archivo de log)
+        error_log('SQL Update Query: ' . $query, 3, __DIR__ . '/../logs/sql.log');
+        
+        $result = $this->conn->query($query);
+        
+        if (!$result) {
+            error_log('SQL Update Error: ' . $this->conn->error, 3, __DIR__ . '/../logs/sql_error.log');
+        }
+        
+        return $result;
     }
     
     // Eliminar militante
@@ -315,13 +350,21 @@ public function getRecentActivity($limit = 5) {
         $claveElector = sanitizeInput($claveElector);
         $query = "SELECT id FROM militantes WHERE clave_elector = '$claveElector'";
         
-        if ($excludeId) {
+        if ($excludeId !== null) {
             $excludeId = (int)$excludeId;
             $query .= " AND id != $excludeId";
         }
         
+        // Depuración
+        error_log('existsClaveElector Query: ' . $query, 3, __DIR__ . '/../logs/sql.log');
+        
         $result = $this->conn->query($query);
-        return ($result && $result->num_rows > 0);
+        $exists = ($result && $result->num_rows > 0);
+        
+        // Depuración
+        error_log('existsClaveElector Result: ' . ($exists ? 'true' : 'false'), 3, __DIR__ . '/../logs/sql.log');
+        
+        return $exists;
     }
     
     // Obtener conteo de militantes por estado

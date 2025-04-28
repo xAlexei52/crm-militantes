@@ -82,79 +82,139 @@ switch ($request_path) {
         $controller->uploadINE();
         break;
         
-    // Rutas de administrador
-    case '/admin':
-    case '/admin/dashboard':
-        if (!isAdmin()) {
-            redirect('login');
-        }
-        require 'controllers/AdminController.php';
-        $controller = new AdminController();
-        $controller->dashboard();
-        break;
+        case '/admin':
+        case '/admin/dashboard':
+            if (!isLoggedIn()) { // Cambiado de !isAdmin() a !isLoggedIn()
+                redirect('login');
+            }
+            require 'controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->dashboard();
+            break;
+            
+        case '/admin/militantes':
+            if (!isLoggedIn()) { // Cambiado de !isAdmin() a !isLoggedIn()
+                redirect('login');
+            }
+            require 'controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->listMilitantes();
+            break;
+            
+        case '/admin/militantes/edit':
+            if (!isLoggedIn()) { // Cambiado de !isAdmin() a !isLoggedIn()
+                redirect('login');
+            }
+            require 'controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->editMilitante();
+            break;
+            
+        case '/admin/militantes/save':
+            if (!isLoggedIn()) { // Cambiado de !isAdmin() a !isLoggedIn()
+                redirect('login');
+            }
+            require 'controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->saveMilitante();
+            break;
+            
+        case '/admin/militantes/delete':
+            if (!isLoggedIn()) { // Cambiado de !isAdmin() a !isLoggedIn()
+                redirect('login');
+            }
+            require 'controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->deleteMilitante();
+            break;
         
-    case '/admin/militantes':
-        if (!isAdmin()) {
-            redirect('login');
-        }
-        require 'controllers/AdminController.php';
-        $controller = new AdminController();
-        $controller->listMilitantes();
-        break;
+        case '/admin/militantes/view':
+            if (!isLoggedIn()) { // Cambiado de !isAdmin() a !isLoggedIn()
+                redirect('login');
+            }
+            require 'controllers/AdminController.php';
+            $controller = new AdminController();
+            $controller->viewMilitante();
+            break;
+            
+        case '/admin/mensajes':
+            if (!isLoggedIn()) { // Cambiado de !isAdmin() a !isLoggedIn()
+                redirect('login');
+            }
+            require 'controllers/MensajesController.php';
+            $controller = new MensajesController();
+            $controller->index();
+            break;
+            
+        case '/admin/mensajes/send':
+            if (!isLoggedIn()) { // Cambiado de !isAdmin() a !isLoggedIn()
+                redirect('login');
+            }
+            require 'controllers/MensajesController.php';
+            $controller = new MensajesController();
+            $controller->sendMessages();
+            break;
         
-    case '/admin/militantes/edit':
-        if (!isAdmin()) {
-            redirect('login');
-        }
-        require 'controllers/AdminController.php';
-        $controller = new AdminController();
-        $controller->editMilitante();
-        break;
+        // Gestión de usuarios - mantener la restricción a administradores
+        case '/admin/usuarios':
+            if (!isAdmin()) { // Mantener la restricción solo para administradores
+                setFlashMessage('error', 'No tienes permisos para acceder a esta sección');
+                redirect('admin/dashboard');
+            }
+            require 'controllers/UsuariosController.php';
+            $controller = new UsuariosController();
+            $controller->index();
+            break;
         
-    case '/admin/militantes/save':
-        if (!isAdmin()) {
-            redirect('login');
-        }
-        require 'controllers/AdminController.php';
-        $controller = new AdminController();
-        $controller->saveMilitante();
-        break;
+        case '/admin/usuarios/create':
+            if (!isAdmin()) { // Mantener la restricción solo para administradores
+                setFlashMessage('error', 'No tienes permisos para acceder a esta sección');
+                redirect('admin/dashboard');
+            }
+            require 'controllers/UsuariosController.php';
+            $controller = new UsuariosController();
+            $controller->create();
+            break;
         
-    case '/admin/militantes/delete':
-        if (!isAdmin()) {
-            redirect('login');
-        }
-        require 'controllers/AdminController.php';
-        $controller = new AdminController();
-        $controller->deleteMilitante();
-        break;
-
-    case '/admin/militantes/view':
-        if (!isAdmin()) {
-            redirect('login');
-        }
-        require 'controllers/AdminController.php';
-        $controller = new AdminController();
-        $controller->viewMilitante();
-        break;
+        case '/admin/usuarios/store':
+            if (!isAdmin()) { // Mantener la restricción solo para administradores
+                setFlashMessage('error', 'No tienes permisos para acceder a esta sección');
+                redirect('admin/dashboard');
+            }
+            require 'controllers/UsuariosController.php';
+            $controller = new UsuariosController();
+            $controller->store();
+            break;
         
-    case '/admin/mensajes':
-        if (!isAdmin()) {
-            redirect('login');
-        }
-        require 'controllers/MensajesController.php';
-        $controller = new MensajesController();
-        $controller->index();
-        break;
+        case '/admin/usuarios/edit':
+            if (!isAdmin()) { // Mantener la restricción solo para administradores
+                setFlashMessage('error', 'No tienes permisos para acceder a esta sección');
+                redirect('admin/dashboard');
+            }
+            require 'controllers/UsuariosController.php';
+            $controller = new UsuariosController();
+            $controller->edit();
+            break;
         
-    case '/admin/mensajes/send':
-        if (!isAdmin()) {
-            redirect('login');
-        }
-        require 'controllers/MensajesController.php';
-        $controller = new MensajesController();
-        $controller->sendMessages();
-        break;
+        case '/admin/usuarios/update':
+            if (!isAdmin()) { // Mantener la restricción solo para administradores
+                setFlashMessage('error', 'No tienes permisos para acceder a esta sección');
+                redirect('admin/dashboard');
+            }
+            require 'controllers/UsuariosController.php';
+            $controller = new UsuariosController();
+            $controller->update();
+            break;
+        
+        case '/admin/usuarios/delete':
+            if (!isAdmin()) { // Mantener la restricción solo para administradores
+                setFlashMessage('error', 'No tienes permisos para acceder a esta sección');
+                redirect('admin/dashboard');
+            }
+            require 'controllers/UsuariosController.php';
+            $controller = new UsuariosController();
+            $controller->delete();
+            break;
         
     // Rutas para páginas estáticas
     case '/about':
