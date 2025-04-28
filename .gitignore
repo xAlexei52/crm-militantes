@@ -1,2 +1,5 @@
 /uploads
 /vendor
+/logs
+.env
+
