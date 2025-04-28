@@ -1,9 +1,18 @@
 <?php
+
+$rootPath = dirname(__DIR__);
+
+require_once $rootPath . '/vendor/autoload.php';
+
+use Dotenv\Dotenv;
+$dotenv = Dotenv::createImmutable($rootPath); // Ahora apunta al directorio raíz
+$dotenv->load();
+
 // Configuración de la base de datos
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'partido_afiliados');
+define('DB_HOST', $_ENV['DB_SERVER']);
+define('DB_USER', $_ENV['DB_USER']);
+define('DB_PASS', $_ENV['DB_PASSWORD']);
+define('DB_NAME', $_ENV['DB_NAME']);
 
 // Conexión a la base de datos
 function getDBConnection() {

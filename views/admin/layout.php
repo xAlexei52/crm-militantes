@@ -80,6 +80,12 @@
                         <a href="<?= APP_URL ?>/admin/mensajes" class="block px-4 py-2 rounded-md text-sm font-medium transition <?= strpos($_SERVER['REQUEST_URI'], '/admin/mensajes') !== false ? 'sidebar-active' : 'text-gray-600 hover:bg-gray-50' ?>">
                             <i class="fas fa-sms mr-3"></i> Envío de Mensajes
                         </a>
+                        <!-- Menú de gestión de usuarios, solo visible para administradores -->
+                        <?php if (isAdmin()): ?>
+                            <a href="<?= APP_URL ?>/admin/usuarios" class="block px-4 py-2 rounded-md text-sm font-medium transition <?= strpos($_SERVER['REQUEST_URI'], '/admin/usuarios') !== false ? 'sidebar-active' : 'text-gray-600 hover:bg-gray-50' ?>">
+                                <i class="fas fa-users-cog mr-3"></i> Gestión de Usuarios
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </div>
                 

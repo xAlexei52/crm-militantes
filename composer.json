@@ -1,0 +1,22 @@
+{
+    "name": "partido/sistema-afiliados",
+    "description": "Sistema de Gestión de Afiliados para Partido Político",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "phpmailer/phpmailer": "^6.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Admin",
+            "email": "admin@ejemplo.com"
+        }
+    ],
+    "minimum-stability": "stable"
+}

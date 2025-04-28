@@ -1,4 +1,7 @@
 <?php
+
+// Agregar esta línea al principio del archivo config/app.php, después de los demás requires
+require_once __DIR__ . '/email.php';
 // Configuración general de la aplicación
 define('APP_NAME', 'Sistema de Afiliación');
 define('APP_URL', 'http://localhost/militantes-sistema');
